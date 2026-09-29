@@ -1,0 +1,1 @@
+const fs=require('fs');const b=fs.readFileSync('C:/Users/pasha/OneDrive/Desktop/STANDOFF_1_0_DUMP_WORK/ownapp100/libunity.so');for(let o=0xbb2b6d0;o<0xbb2ba50;o+=8){const v=b.readBigUInt64LE(o);console.log('0x'+o.toString(16)+' 0x'+v.toString(16))}

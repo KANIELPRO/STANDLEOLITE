@@ -1,0 +1,4 @@
+const net=require('net');const c=net.createConnection(5039,'127.0.0.1');let b=Buffer.alloc(0);
+function cs(s){let n=0;for(const x of Buffer.from(s))n=(n+x)&255;return n.toString(16).padStart(2,'0')}
+function req(s){return new Promise((res,rej)=>{let t=setTimeout(()=>rej(Error('timeout '+s)),3000);const take=()=>{while(b.length&&b[0]!==36)b=b.subarray(1);let h=b.indexOf(35,1);if(h<0||b.length<h+3)return;let body=b.subarray(1,h).toString('binary');b=b.subarray(h+3);clearTimeout(t);c.write('+');res(body)};c.on('data',d=>{b=Buffer.concat([b,d]);take()});c.write('$'+s+'#'+cs(s))})}
+c.on('connect',async()=>{try{console.log('q',await req('qSupported'));console.log('g', (await req('g')).slice(0,680));console.log('m', (await req('m78098e3000,40')))}catch(e){console.error(e)}finally{c.end()}});

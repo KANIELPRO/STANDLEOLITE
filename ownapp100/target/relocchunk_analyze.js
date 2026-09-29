@@ -1,0 +1,1 @@
+const fs=require('fs');const b=fs.readFileSync('C:/Users/pasha/OneDrive/Desktop/STANDOFF_1_0_DUMP_WORK/ownapp100/target/relocchunk.bin');const base=0x6dff6c9400n;function x(o){return b.readBigUInt64LE(o)}for(let o=0;o<b.length;o+=8){const v=x(o);if(v!==0n)console.log('0x'+(base+BigInt(o)).toString(16)+' 0x'+v.toString(16));}

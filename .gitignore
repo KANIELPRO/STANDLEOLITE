@@ -1,0 +1,9 @@
+﻿# Large artifacts
+*.apk
+*.aab
+*.obb
+*.bin
+*.mem
+*.so
+*.dll
+*.zip

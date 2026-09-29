@@ -1,0 +1,6 @@
+const net=require('net');
+const c=net.createConnection(5039,'127.0.0.1'); let buf=Buffer.alloc(0);
+function sum(s){let n=0;for(const ch of Buffer.from(s,'binary'))n=(n+ch)&255;return n.toString(16).padStart(2,'0')}
+function waitpkt(ms=5000){return new Promise((res,rej)=>{const t=setTimeout(()=>rej(Error('timeout')),ms);const take=()=>{while(buf.length&&buf[0]!==36)buf=buf.subarray(1);if(buf.length<4)return;const h=buf.indexOf(35,1);if(h<0||buf.length<h+3)return;const body=buf.subarray(1,h).toString('binary');const cs=buf.subarray(h+1,h+3).toString('ascii');buf=buf.subarray(h+3);clearTimeout(t);res({body,cs,ok:cs.toLowerCase()===sum(body)})};c.on('data',d=>{buf=Buffer.concat([buf,d]);take()})})}
+async function req(s){c.write('$'+s+'#'+sum(s));return await waitpkt(5000)}
+c.on('connect',async()=>{try{console.log('Q',await req('qSupported'));console.log('G',await req('g'));console.log('M',await req('m6f5ecc6000,40'));console.log('C',await req('c'));}catch(e){console.error(e)}finally{setTimeout(()=>c.end(),200)}});

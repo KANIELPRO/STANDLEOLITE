@@ -1,0 +1,1 @@
+const fs=require('fs');const b=fs.readFileSync('C:/Users/pasha/OneDrive/Desktop/STANDOFF_1_0_DUMP_WORK/ownapp100/target/module_ac_current.bin');const base=0x6f5ef737b0n;for(let i=0;i<b.length;i+=8){const v=b.readBigUInt64LE(i);if(v!==0n)console.log('+'+i.toString(16).padStart(3,'0'),'0x'+v.toString(16));}

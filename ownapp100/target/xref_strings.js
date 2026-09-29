@@ -1,0 +1,6 @@
+const fs=require('fs');
+const b=fs.readFileSync('C:/Users/pasha/OneDrive/Desktop/STANDOFF_1_0_DUMP_WORK/ownapp100/libunity.so');
+const fo=0x535b940, va=0x535f940, sz=0x6523640;
+function adrpTarget(ins,pc){if((ins&0x9f000000)!==0x90000000)return null;let immhi=BigInt((ins>>>5)&0x7ffff),immlo=BigInt((ins>>>29)&3),imm=(immhi<<2n)|immlo;if(imm&(1n<<20n))imm-=1n<<21n;return (BigInt(pc)&~0xfffn)+(imm<<12n);}
+function scan(off){const page=off&~0xfff,h=[];for(let i=0;i<sz-4;i+=4){const o=fo+i,t=adrpTarget(b.readUInt32LE(o),va+i);if(t!==null&&t===BigInt(page)){const rd=b.readUInt32LE(o)&31;for(let j=4;j<=24;j+=4){const ins2=b.readUInt32LE(o+j),rn=(ins2>>>5)&31,imm12=(ins2>>>10)&0xfff;if(rn===rd){const a=Number(t)+imm12;if(a>=off-0x100&&a<off+0x300)h.push([o,va+i,a,ins2]);}}}}return h}
+for(const [q,o] of [['meta',0x18bba33],['AC',0x18e1623],['AC2',0x2e774c3]]){const h=scan(o);console.log(q,h.length);for(const x of h.slice(0,50))console.log('file=0x'+x[0].toString(16)+' pc=0x'+x[1].toString(16)+' target=0x'+x[2].toString(16)+' ins=0x'+x[3].toString(16));}

@@ -1,0 +1,1 @@
+const fs=require('fs');const b=fs.readFileSync('C:/Users/pasha/OneDrive/Desktop/STANDOFF_1_0_DUMP_WORK/ownapp100/target/reloc_ac_current.bin');const base=0x6f5ef6b6a0n;for(let i=0;i<b.length;i+=8){const v=b.readBigUInt64LE(i);if(v!==0n)console.log('0x'+(base+BigInt(i)).toString(16), '0x'+v.toString(16));}

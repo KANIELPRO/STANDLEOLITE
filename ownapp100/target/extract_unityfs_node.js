@@ -1,0 +1,11 @@
+const fs=require('fs');
+const b=fs.readFileSync('C:/Users/pasha/OneDrive/Desktop/STANDOFF_1_0_DUMP_WORK/ownapp100/target/data.unity3d');
+let o=0;function c(){let s='';while(b[o])s+=String.fromCharCode(b[o++]);o++;return s}function u32(){let v=b.readUInt32BE(o);o+=4;return v}function u64(){let v=b.readBigUInt64BE(o);o+=8;return v}function lz4(s,e){let z=Buffer.alloc(e),i=0,w=0;while(i<s.length){let t=s[i++],l=t>>4;if(l===15){let x;do{x=s[i++];l+=x}while(x===255)}s.copy(z,w,i,i+l);i+=l;if(i>=s.length)break;let d=s[i]|(s[i+1]<<8);i+=2;let m=t&15;if(m===15){let x;do{x=s[i++];m+=x}while(x===255)}m+=4;if(!d||d>w)throw Error('bad off '+d+' '+w);for(let j=0;j<m;j++)z[w+j]=z[w-d+j];w+=m}if(w!==e)throw Error('lz4 '+w+' '+e);return z}
+const sig=c(),ver=u32(),unity=c(),rev=c(),total=u64(),ic=u32(),iu=u32(),flags=u32();while(o%16)o++;const dataOff=o+ic;const icb=b.subarray(o,o+ic);
+let ctype=flags&63,info=ctype===0?icb:lz4(icb,iu);let p0=16,bc=info.readUInt32BE(p0);p0+=4;let blocks=[];for(let i=0;i<bc;i++){let us=info.readUInt32BE(p0),cs=info.readUInt32BE(p0+4),fl=info.readUInt16BE(p0+8);p0+=10;blocks.push({us,cs,fl})}
+let nc=info.readUInt32BE(p0);p0+=4;let target=null;for(let i=0;i<nc;i++){let no=info.readBigUInt64BE(p0),sz=info.readBigUInt64BE(p0+8),fl=info.readUInt32BE(p0+16);p0+=20;let e=info.indexOf(0,p0),name=info.toString('utf8',p0,e);p0=e+1;if(name==='resources.assets')target={off:no,size:sz,fl}}
+if(!target)throw Error('node not found');
+console.log('target',target,'blocks',bc,'dataOff',dataOff,'flags',flags.toString(16));
+const out=fs.openSync('C:/Users/pasha/OneDrive/Desktop/STANDOFF_1_0_DUMP_WORK/ownapp100/target/resources.assets','w');let compPos=dataOff,unPos=0n,written=0n;
+for(const bl of blocks){const src=b.subarray(compPos,compPos+bl.cs);let plain;if(bl.fl===0)plain=src;else if((bl.fl&63)===2||(bl.fl&63)===3||(bl.fl&63)===4)plain=lz4(src,bl.us);else throw Error('block flag '+bl.fl.toString(16));const bs=unPos,be=unPos+BigInt(plain.length),ts=target.off,te=target.off+target.size;if(be>ts&&bs<te){const a=Number(ts>bs?ts-bs:0n),z=Number(te<be?te-bs:BigInt(plain.length));if(z>a){fs.writeSync(out,plain,a,z-a);written+=BigInt(z-a)}}unPos=be;compPos+=bl.cs;if(unPos>=te)break}
+fs.closeSync(out);console.log('written',written.toString());
